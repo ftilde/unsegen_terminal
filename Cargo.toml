@@ -3,10 +3,19 @@ name = "unsegen_terminal"
 version = "0.0.1"
 authors = ["ftilde <ftilde@protonmail.com>"]
 
+description = "A pseudoterminal that can be easily integrated into applications using unsegen"
+documentation = "https://docs.rs/unsegen_terminal"
+repository = "https://github.com/ftilde/unsegen_terminal"
+readme = "README.md"
+license = "MIT"
+license-file = "LICENSE"
+keywords = ["terminal", "tui", "multiplexing"]
+
 [dependencies]
 nix = "0.7"
 libc = "0.2"
 vte = "0.3"
 
-[dependencies.unsegen]
-path = "../unsegen"
+#[dependencies.unsegen]
+#path = "../unsegen"
+unsegen = "0.0.1"
