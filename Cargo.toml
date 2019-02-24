@@ -9,4 +9,4 @@ libc = "0.2"
 vte = "0.3"
 
 [dependencies.unsegen]
-path = ".."
+path = "../unsegen"
