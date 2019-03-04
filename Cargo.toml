@@ -15,6 +15,6 @@ nix = "0.7"
 libc = "0.2"
 vte = "0.3"
 
-#[dependencies.unsegen]
+[dependencies.unsegen]
 #path = "../unsegen"
-unsegen = "0.0.1"
+version = "0.0.1"
