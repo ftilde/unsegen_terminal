@@ -245,14 +245,17 @@ impl Widget for Terminal {
 
 /// Default container behavior:
 ///
-/// Scroll using `PageUp`/`PageDown` and pass all other input to the slave terminal.
+/// Scroll using `PageUp`/`PageDown`, jump to beginning/end using `Home`/`End` and pass all other
+/// input to the slave terminal.
 impl<P: ?Sized> Container<P> for Terminal {
     fn input(&mut self, input: Input, _: &mut P) -> Option<Input> {
         input
             .chain(
                 ScrollBehavior::new(self)
                     .forwards_on(Key::PageDown)
-                    .backwards_on(Key::PageUp),
+                    .backwards_on(Key::PageUp)
+                    .to_beginning_on(Key::Home)
+                    .to_end_on(Key::End),
             )
             .chain(PassthroughBehavior::new(self))
             .finish()
