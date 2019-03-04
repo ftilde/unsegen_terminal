@@ -152,8 +152,8 @@ impl CursorTarget for LineBuffer {
 
         line.get_cell(x)
     }
-    fn get_default_style(&self) -> &Style {
-        &self.default_style
+    fn get_default_style(&self) -> Style {
+        self.default_style
     }
 }
 
@@ -189,6 +189,11 @@ impl TerminalWindow {
             .unwrap_or(self.buffer.height_as_displayed().from_origin())
     }
 
+    #[cfg(test)]
+    pub fn set_show_cursor(&mut self, show: bool) {
+        self.show_cursor = show;
+    }
+
     pub fn set_width(&mut self, w: Width) {
         self.window_width = w;
         self.buffer.set_window_width(w);
@@ -209,7 +214,7 @@ impl TerminalWindow {
     fn with_cursor<F: FnOnce(&mut Cursor<LineBuffer>)>(&mut self, f: F) {
         let mut state = CursorState::default();
         ::std::mem::swap(&mut state, &mut self.cursor_state);
-        let mut cursor = Cursor::with_state(&mut self.buffer, state);
+        let mut cursor = Cursor::from_state(&mut self.buffer, state);
         f(&mut cursor);
         self.cursor_state = cursor.into_state();
     }
@@ -431,7 +436,7 @@ impl Handler for DualWindow {
         let x = self.col_to_buffer_pos_x(col);
         let y = self.line_to_buffer_pos_y(line);
         self.with_cursor(|cursor| {
-            cursor.set_position(x, y);
+            cursor.move_to(x, y);
         });
         trace_ansi!("goto");
     }
@@ -669,7 +674,7 @@ impl Handler for DualWindow {
                 trace_ansi!("clear_screen below");
                 let mut range_start = 0;
                 self.with_cursor(|cursor| {
-                    range_start = max(0, cursor.get_pos_y().raw_value() + 1) as usize
+                    range_start = max(0, cursor.get_row().raw_value() + 1) as usize
                 });
 
                 self.clear_line(ansi::LineClearMode::Right);
@@ -679,7 +684,7 @@ impl Handler for DualWindow {
                 trace_ansi!("clear_screen above");
                 let mut range_end = ::std::usize::MAX;
                 self.with_cursor(|cursor| {
-                    range_end = max(0, cursor.get_pos_y().raw_value()) as usize
+                    range_end = max(0, cursor.get_row().raw_value()) as usize
                 });
                 self.clear_line(ansi::LineClearMode::Left);
                 self.buffer
@@ -913,49 +918,5 @@ impl Scrollable for DualWindow {
         } else {
             Err(())
         }
-    }
-}
-
-#[cfg(test)]
-impl TerminalWindow {
-    fn write(&mut self, s: &str) {
-        for c in s.chars() {
-            self.input(c);
-        }
-    }
-}
-#[cfg(test)]
-mod test {
-    use super::*;
-    use unsegen::base::terminal::test::FakeTerminal;
-    use unsegen::base::GraphemeCluster;
-
-    fn test_terminal_window<F: Fn(&mut TerminalWindow)>(
-        window_dim: (u32, u32),
-        after: &str,
-        action: F,
-    ) {
-        let mut term = FakeTerminal::with_size(window_dim);
-        {
-            let mut window = term.create_root_window();
-            window.fill(GraphemeCluster::try_from('_').unwrap());
-            let mut tw = TerminalWindow::new();
-            tw.show_cursor = false;
-            action(&mut tw);
-            tw.draw(window, RenderingHints::default());
-        }
-        term.assert_looks_like(after);
-    }
-    #[test]
-    fn test_terminal_window_simple() {
-        test_terminal_window((5, 1), "_____", |w| w.write(""));
-        test_terminal_window((5, 1), "t____", |w| w.write("t"));
-        test_terminal_window((5, 1), "te___", |w| w.write("te"));
-        test_terminal_window((5, 1), "tes__", |w| w.write("tes"));
-        test_terminal_window((5, 1), "test_", |w| w.write("test"));
-        test_terminal_window((5, 1), "testy", |w| w.write("testy"));
-        test_terminal_window((5, 1), "o____", |w| w.write("testyo"));
-
-        test_terminal_window((2, 2), "te|st", |w| w.write("te\nst"));
     }
 }

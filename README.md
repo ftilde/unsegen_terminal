@@ -1,6 +1,6 @@
 # unsegen_terminal
 
-`unsegen_terminal` provides a pseudoterminal that can be easily integrated into applications using [unsegen](https://crates.io/crates/unsegen).
+`unsegen_terminal` provides an ANSI pseudoterminal that can be easily integrated into applications using [unsegen](https://crates.io/crates/unsegen).
 
 ## Getting Started
 
@@ -14,7 +14,16 @@ unsegen_terminal = "0.0.1"
 
 There is an examples at the top of the documentation which should be sufficient to get you going.
 
-For a fully fledged application using `unsegen_signals`, you can have a look at [ugdb](https://github.com/ftilde/ugdb), which was developed alongside `unsegen` and the primary motivation for it.
+For a fully fledged application using `unsegen_terminal`, you can have a look at [ugdb](https://github.com/ftilde/ugdb), which was developed alongside `unsegen` and the primary motivation for it.
+
+## Some notes on the state
+
+The current API for passing on bytes from the pty to the terminal widget is a bit rough, but on the flip side is quite flexible and not tied to a specific event loop.
+In the future, support for specific event loops (especially using Futures once they are stable) could be added.
+
+Moreover, there are still a few unimplemented OSC handlers (see `terminalwindow.rs`), but the functionality is quite usable already.
+Most notably, [ugdb](https://github.com/ftilde/ugdb), which uses `unsegen_terminal` itself, can debug itself.
+Feel free to contribute missing functionality or to create issues if you hit a roadblock.
 
 ## Licensing
 
