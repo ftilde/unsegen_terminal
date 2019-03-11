@@ -12,7 +12,7 @@ unsegen_terminal = "0.0.1"
 
 ## Examples
 
-There is an examples at the top of the documentation which should be sufficient to get you going.
+There is an example at the root of the crate [documentation](https://docs.rs/unsegen_terminal) which should be sufficient to get you going.
 
 For a fully fledged application using `unsegen_terminal`, you can have a look at [ugdb](https://github.com/ftilde/ugdb), which was developed alongside `unsegen` and the primary motivation for it.
 
