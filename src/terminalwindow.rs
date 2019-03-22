@@ -9,6 +9,8 @@ use unsegen::base::{
 use unsegen::input::{OperationResult, Scrollable};
 use unsegen::widget::{Demand, Demand2D, RenderingHints};
 
+use log::warn;
+
 use index;
 use std::cmp::{max, min};
 use std::fmt::Write;
@@ -351,25 +353,6 @@ fn ansi_to_unsegen_color(ansi_color: ansi::Color) -> UColor {
     }
 }
 
-macro_rules! warn_unimplemented {
-    ($($arg:tt)*) => {{
-        use std::io::Write;
-        (write!(&mut ::std::io::stderr(), "WARN: Unimplemented ansi function \"")).expect("stderr");
-        (write!(&mut ::std::io::stderr(), $($arg)*)).expect("stderr");
-        (writeln!(&mut ::std::io::stderr(), "\"")).expect("stderr");
-    }}
-}
-
-macro_rules! trace_ansi {
-    ($($arg:tt)*) => {{
-        /*
-        use std::io::Write;
-        (write!(&mut ::std::io::stderr(), "INFO: Ansi trace: ")).expect("stderr");
-        (writeln!(&mut ::std::io::stderr(), $($arg)*)).expect("stderr");
-        */
-    }};
-}
-
 enum BufferMode {
     Main,
     Alternate,
@@ -420,7 +403,7 @@ impl Handler for DualWindow {
     /// Set the cursor style
     fn set_cursor_style(&mut self, _: CursorStyle) {
         //TODO
-        warn_unimplemented!("set_cursor_style");
+        warn!("Unimplemented: set_cursor_style");
     }
 
     /// A character to be displayed
@@ -428,7 +411,6 @@ impl Handler for DualWindow {
         self.with_cursor(|cursor| {
             write!(cursor, "{}", c).unwrap();
         });
-        trace_ansi!("input '{}'", c);
     }
 
     /// Set cursor to position
@@ -438,7 +420,6 @@ impl Handler for DualWindow {
         self.with_cursor(|cursor| {
             cursor.move_to(x, y);
         });
-        trace_ansi!("goto");
     }
 
     /// Set cursor to specific row
@@ -447,7 +428,6 @@ impl Handler for DualWindow {
         self.with_cursor(|cursor| {
             cursor.move_to_y(y);
         });
-        trace_ansi!("goto_line");
     }
 
     /// Set cursor to specific column
@@ -456,13 +436,12 @@ impl Handler for DualWindow {
         self.with_cursor(|cursor| {
             cursor.move_to_x(x);
         });
-        trace_ansi!("goto_col");
     }
 
     /// Insert blank characters in current line starting from cursor
     fn insert_blank(&mut self, _: index::Column) {
         //TODO
-        warn_unimplemented!("insert_blank");
+        warn!("Unimplemented: insert_blank");
     }
 
     /// Move cursor up `rows`
@@ -470,7 +449,6 @@ impl Handler for DualWindow {
         self.with_cursor(|cursor| {
             cursor.move_by(ColDiff::new(0), RowDiff::new(-(line.0 as i32)));
         });
-        trace_ansi!("move_up");
     }
 
     /// Move cursor down `rows`
@@ -478,7 +456,6 @@ impl Handler for DualWindow {
         self.with_cursor(|cursor| {
             cursor.move_by(ColDiff::new(0), RowDiff::new(line.0 as i32));
         });
-        trace_ansi!("move_down");
     }
 
     /// Identify the terminal (should write back to the pty stream)
@@ -486,13 +463,13 @@ impl Handler for DualWindow {
     /// TODO this should probably return an io::Result
     fn identify_terminal<W: ::std::io::Write>(&mut self, _: &mut W) {
         //TODO
-        warn_unimplemented!("identify_terminal");
+        warn!("Unimplemented: identify_terminal");
     }
 
     /// Report device status
     fn device_status<W: ::std::io::Write>(&mut self, _: &mut W, _: usize) {
         //TODO
-        warn_unimplemented!("device_status");
+        warn!("Unimplemented: device_status");
     }
 
     /// Move cursor forward `cols`
@@ -502,7 +479,6 @@ impl Handler for DualWindow {
                 cursor.move_right();
             }
         });
-        trace_ansi!("move_forward {}", cols.0);
     }
 
     /// Move cursor backward `cols`
@@ -512,19 +488,18 @@ impl Handler for DualWindow {
                 cursor.move_left();
             }
         });
-        trace_ansi!("move_backward {}", cols.0);
     }
 
     /// Move cursor down `rows` and set to column 1
     fn move_down_and_cr(&mut self, _: index::Line) {
         //TODO
-        warn_unimplemented!("move_down_and_cr");
+        warn!("Unimplemented: move_down_and_cr");
     }
 
     /// Move cursor up `rows` and set to column 1
     fn move_up_and_cr(&mut self, _: index::Line) {
         //TODO
-        warn_unimplemented!("move_up_and_cr");
+        warn!("Unimplemented: move_up_and_cr");
     }
 
     /// Put `count` tabs
@@ -534,7 +509,6 @@ impl Handler for DualWindow {
                 write!(cursor, "\t").unwrap();
             }
         });
-        trace_ansi!("put_tab {}", count);
     }
 
     /// Backspace `count` characters
@@ -542,13 +516,11 @@ impl Handler for DualWindow {
         self.with_cursor(|cursor| {
             cursor.move_left();
         });
-        trace_ansi!("backspace");
     }
 
     /// Carriage return
     fn carriage_return(&mut self) {
         self.with_cursor(|cursor| cursor.carriage_return());
-        trace_ansi!("carriage_return");
     }
 
     /// Linefeed
@@ -559,55 +531,53 @@ impl Handler for DualWindow {
             cursor.write("\n ");
             cursor.move_by(ColDiff::new(-1), RowDiff::new(0));
         });
-        trace_ansi!("linefeed");
     }
 
     /// Ring the bell
     fn bell(&mut self) {
         //omitted
-        trace_ansi!("bell");
     }
 
     /// Substitute char under cursor
     fn substitute(&mut self) {
         //TODO... substitute with what?
-        warn_unimplemented!("substitute");
+        warn!("Unimplemented: substitute");
     }
 
     /// Newline
     fn newline(&mut self) {
         //TODO
-        warn_unimplemented!("newline");
+        warn!("Unimplemented: newline");
     }
 
     /// Set current position as a tabstop
     fn set_horizontal_tabstop(&mut self) {
         //TODO
-        warn_unimplemented!("set_horizontal_tabstop");
+        warn!("Unimplemented: set_horizontal_tabstop");
     }
 
     /// Scroll up `rows` rows
     fn scroll_up(&mut self, _: index::Line) {
         //TODO
-        warn_unimplemented!("scroll_up");
+        warn!("Unimplemented: scroll_up");
     }
 
     /// Scroll down `rows` rows
     fn scroll_down(&mut self, _: index::Line) {
         //TODO
-        warn_unimplemented!("scroll_down");
+        warn!("Unimplemented: scroll_down");
     }
 
     /// Insert `count` blank lines
     fn insert_blank_lines(&mut self, _: index::Line) {
         //TODO
-        warn_unimplemented!("insert_blank_lines");
+        warn!("Unimplemented: insert_blank_lines");
     }
 
     /// Delete `count` lines
     fn delete_lines(&mut self, _: index::Line) {
         //TODO
-        warn_unimplemented!("delete_lines");
+        warn!("Unimplemented: delete_lines");
     }
 
     /// Erase `count` chars in current line following cursor
@@ -616,7 +586,7 @@ impl Handler for DualWindow {
     /// no mode flags)
     fn erase_chars(&mut self, _: index::Column) {
         //TODO
-        warn_unimplemented!("erase_chars");
+        warn!("Unimplemented: erase_chars");
     }
 
     /// Delete `count` chars
@@ -625,31 +595,31 @@ impl Handler for DualWindow {
     /// to the right of the deleted things is shifted left.
     fn delete_chars(&mut self, _: index::Column) {
         //TODO
-        warn_unimplemented!("delete_chars");
+        warn!("Unimplemented: delete_chars");
     }
 
     /// Move backward `count` tabs
     fn move_backward_tabs(&mut self, _count: i64) {
         //TODO
-        warn_unimplemented!("move_backward_tabs");
+        warn!("Unimplemented: move_backward_tabs");
     }
 
     /// Move forward `count` tabs
     fn move_forward_tabs(&mut self, _count: i64) {
         //TODO
-        warn_unimplemented!("move_forward_tabs");
+        warn!("Unimplemented: move_forward_tabs");
     }
 
     /// Save current cursor position
     fn save_cursor_position(&mut self) {
         //TODO
-        warn_unimplemented!("save_cursor_position");
+        warn!("Unimplemented: save_cursor_position");
     }
 
     /// Restore cursor position
     fn restore_cursor_position(&mut self) {
         //TODO
-        warn_unimplemented!("restore_cursor_position");
+        warn!("Unimplemented: restore_cursor_position");
     }
 
     /// Clear current line
@@ -671,7 +641,6 @@ impl Handler for DualWindow {
     fn clear_screen(&mut self, mode: ansi::ClearMode) {
         let clear_range = match mode {
             ansi::ClearMode::Below => {
-                trace_ansi!("clear_screen below");
                 let mut range_start = 0;
                 self.with_cursor(|cursor| {
                     range_start = max(0, cursor.get_row().raw_value() + 1) as usize
@@ -681,7 +650,6 @@ impl Handler for DualWindow {
                 range_start..self.buffer.lines.len()
             }
             ansi::ClearMode::Above => {
-                trace_ansi!("clear_screen above");
                 let mut range_end = ::std::usize::MAX;
                 self.with_cursor(|cursor| {
                     range_end = max(0, cursor.get_row().raw_value()) as usize
@@ -694,7 +662,6 @@ impl Handler for DualWindow {
                     .unwrap_or(0)..range_end
             }
             ansi::ClearMode::All => {
-                trace_ansi!("clear_screen all");
                 self.buffer
                     .lines
                     .len()
@@ -702,7 +669,7 @@ impl Handler for DualWindow {
                     .unwrap_or(0)..self.buffer.lines.len()
             }
             ansi::ClearMode::Saved => {
-                warn_unimplemented!("clear_screen saved");
+                warn!("Unimplemented: clear_screen saved");
                 return;
             }
         };
@@ -714,13 +681,13 @@ impl Handler for DualWindow {
     /// Clear tab stops
     fn clear_tabs(&mut self, _: ansi::TabulationClearMode) {
         //TODO
-        warn_unimplemented!("clear_tabs");
+        warn!("Unimplemented: clear_tabs");
     }
 
     /// Reset terminal state
     fn reset_state(&mut self) {
         //TODO
-        warn_unimplemented!("reset_state");
+        warn!("Unimplemented: reset_state");
     }
 
     /// Reverse Index
@@ -730,7 +697,7 @@ impl Handler for DualWindow {
     /// down is performed
     fn reverse_index(&mut self) {
         //TODO
-        warn_unimplemented!("reverse_index");
+        warn!("Unimplemented: reverse_index");
     }
 
     /// set a terminal attribute
@@ -743,7 +710,7 @@ impl Handler for DualWindow {
                 }
                 Attr::Dim => {
                     /* What is this? */
-                    warn_unimplemented!("attr Dim")
+                    warn!("Unimplemented: attr Dim")
                 }
                 Attr::Italic => {
                     c.apply_style_modifier(StyleModifier::new().italic(true));
@@ -751,13 +718,13 @@ impl Handler for DualWindow {
                 Attr::Underscore => {
                     c.apply_style_modifier(StyleModifier::new().underline(true));
                 }
-                Attr::BlinkSlow => warn_unimplemented!("attr BlinkSlow"),
-                Attr::BlinkFast => warn_unimplemented!("attr BlinkFast"),
+                Attr::BlinkSlow => warn!("Unimplemented: attr BlinkSlow"),
+                Attr::BlinkFast => warn!("Unimplemented: attr BlinkFast"),
                 Attr::Reverse => {
                     c.apply_style_modifier(StyleModifier::new().invert(true));
                 }
-                Attr::Hidden => warn_unimplemented!("attr Hidden"),
-                Attr::Strike => warn_unimplemented!("attr Strike"),
+                Attr::Hidden => warn!("Unimplemented: attr Hidden"),
+                Attr::Strike => warn!("Unimplemented: attr Strike"),
                 Attr::CancelBold => {
                     c.apply_style_modifier(StyleModifier::new().bold(false));
                 }
@@ -771,12 +738,12 @@ impl Handler for DualWindow {
                 Attr::CancelUnderline => {
                     c.apply_style_modifier(StyleModifier::new().underline(false));
                 }
-                Attr::CancelBlink => warn_unimplemented!("attr CancelBlink"),
+                Attr::CancelBlink => warn!("Unimplemented: attr CancelBlink"),
                 Attr::CancelReverse => {
                     c.apply_style_modifier(StyleModifier::new().invert(false));
                 }
-                Attr::CancelHidden => warn_unimplemented!("attr CancelHidden"),
-                Attr::CancelStrike => warn_unimplemented!("attr CancelStrike"),
+                Attr::CancelHidden => warn!("Unimplemented: attr CancelHidden"),
+                Attr::CancelStrike => warn!("Unimplemented: attr CancelStrike"),
                 Attr::Foreground(color) => {
                     c.apply_style_modifier(
                         StyleModifier::new().fg_color(ansi_to_unsegen_color(color)),
@@ -789,7 +756,6 @@ impl Handler for DualWindow {
                 }
             }
         });
-        trace_ansi!("terminal_attribute {:?}", attr);
     }
 
     /// Set mode
@@ -797,11 +763,10 @@ impl Handler for DualWindow {
         match mode {
             ansi::Mode::ShowCursor => {
                 self.show_cursor = true;
-                trace_ansi!("set_mode {:?}", mode);
             }
             ansi::Mode::SwapScreenAndSetRestoreCursor => self.mode = BufferMode::Alternate,
             _ => {
-                warn_unimplemented!("set_mode {:?}", mode);
+                warn!("Unimplemented: set_mode {:?}", mode);
             }
         }
     }
@@ -811,11 +776,10 @@ impl Handler for DualWindow {
         match mode {
             ansi::Mode::ShowCursor => {
                 self.show_cursor = false;
-                trace_ansi!("set_mode {:?}", mode);
             }
             ansi::Mode::SwapScreenAndSetRestoreCursor => self.mode = BufferMode::Main,
             _ => {
-                warn_unimplemented!("set_mode {:?}", mode);
+                warn!("Unimplemented: set_mode {:?}", mode);
             }
         }
     }
@@ -823,19 +787,19 @@ impl Handler for DualWindow {
     /// DECSTBM - Set the terminal scrolling region
     fn set_scrolling_region(&mut self, _: ::std::ops::Range<index::Line>) {
         //TODO
-        warn_unimplemented!("set_scrolling_region");
+        warn!("Unimplemented: set_scrolling_region");
     }
 
     /// DECKPAM - Set keypad to applications mode (ESCape instead of digits)
     fn set_keypad_application_mode(&mut self) {
         //TODO
-        warn_unimplemented!("set_keypad_application_mode");
+        warn!("Unimplemented: set_keypad_application_mode");
     }
 
     /// DECKPNM - Set keypad to numeric mode (digits intead of ESCape seq)
     fn unset_keypad_application_mode(&mut self) {
         //TODO
-        warn_unimplemented!("unset_keypad_application_mode");
+        warn!("Unimplemented: unset_keypad_application_mode");
     }
 
     /// Set one of the graphic character sets, G0 to G3, as the active charset.
@@ -844,7 +808,7 @@ impl Handler for DualWindow {
     /// shift out and locking shift depending on the set being activated
     fn set_active_charset(&mut self, _: ansi::CharsetIndex) {
         //TODO
-        warn_unimplemented!("set_active_charset");
+        warn!("Unimplemented: set_active_charset");
     }
 
     /// Assign a graphic character set to G0, G1, G2 or G3
@@ -853,19 +817,19 @@ impl Handler for DualWindow {
     /// later be 'invoked' by `set_active_charset`
     fn configure_charset(&mut self, _: ansi::CharsetIndex, _: ansi::StandardCharset) {
         //TODO
-        warn_unimplemented!("configure_charset");
+        warn!("Unimplemented: configure_charset");
     }
 
     /// Set an indexed color value
     fn set_color(&mut self, _: usize, _: ansi::Rgb) {
         //TODO: Implement this, once there is support for a per-terminal color table
-        warn_unimplemented!("set_color");
+        warn!("Unimplemented: set_color");
     }
 
     /// Run the dectest routine
     fn dectest(&mut self) {
         //TODO
-        warn_unimplemented!("dectest");
+        warn!("Unimplemented: dectest");
     }
 }
 

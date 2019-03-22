@@ -44,6 +44,7 @@
 //! }
 //! ```
 extern crate libc;
+extern crate log;
 extern crate nix;
 extern crate unsegen;
 extern crate vte;
