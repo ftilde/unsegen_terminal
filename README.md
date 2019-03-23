@@ -1,5 +1,8 @@
 # unsegen_terminal
 
+[![](https://img.shields.io/crates/v/unsegen_terminal.svg)](https://crates.io/crates/unsegen_terminal/)
+[![](https://docs.rs/unsegen_terminal/badge.svg)](https://docs.rs/unsegen_terminal/)
+
 `unsegen_terminal` provides an ANSI pseudoterminal that can be easily integrated into applications using [unsegen](https://crates.io/crates/unsegen).
 
 ## Getting Started
