@@ -25,7 +25,7 @@
 //!
 //!     let (pty_sink, pty_src) = mpsc::channel();
 //!
-//!     let mut term = base::Terminal::new(stdout.lock());
+//!     let mut term = base::Terminal::new(stdout.lock()).unwrap();
 //!
 //!     let mut term_widget = Terminal::new(MpscSlaveInputSink(pty_sink)).unwrap();
 //!     println!("Created pty: {}", term_widget.slave_name().to_str().unwrap());
