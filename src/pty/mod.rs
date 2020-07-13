@@ -54,17 +54,11 @@ pub enum Error {
 
 pub type Result<T> = result::Result<T, Error>;
 
-impl ::std::error::Error for Error {
-    fn description(&self) -> &str {
-        match *self {
-            Error::Sys(n) => errno::from_i32(n).desc(),
-        }
-    }
-}
-
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        ::std::error::Error::description(self).fmt(f)
+        match *self {
+            Error::Sys(n) => write!(f, "{}", errno::from_i32(n).desc()),
+        }
     }
 }
 

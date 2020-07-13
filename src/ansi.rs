@@ -988,7 +988,7 @@ where
             'u' => handler.restore_cursor_position(),
             'q' => {
                 let style = match arg_or_default!(idx: 0, default: 0) {
-                    0...2 => CursorStyle::Block,
+                    0..=2 => CursorStyle::Block,
                     3 | 4 => CursorStyle::Underline,
                     5 | 6 => CursorStyle::Beam,
                     _ => unhandled!(),
@@ -1093,7 +1093,7 @@ fn parse_color(attrs: &[i64], i: &mut usize) -> Option<Color> {
                 *i += 2;
                 let idx = attrs[*i];
                 match idx {
-                    0...255 => Some(Color::Indexed(idx as u8)),
+                    0..=255 => Some(Color::Indexed(idx as u8)),
                     _ => {
                         warn!("Invalid color index: {}", idx);
                         None
