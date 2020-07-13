@@ -35,8 +35,6 @@ use std::io::{self, Read, Write};
 use std::os::unix::io::{AsRawFd, RawFd};
 use std::result;
 
-mod ffi;
-
 macro_rules! unsafe_try {
     ( $x:expr ) => {{
         let ret = unsafe { $x };
@@ -109,7 +107,7 @@ impl PTY {
         // man ptsname:
         // "On success, ptsname() returns a pointer to a string in _static_ storage which
         // will be overwritten by subsequent calls. This pointer must not be freed."
-        let pts_name = unsafe { ffi::ptsname(self.fd) };
+        let pts_name = unsafe { libc::ptsname(self.fd) };
 
         // This should not happen, as fd is always valid from open to drop.
         assert!(
@@ -205,10 +203,10 @@ impl PTYInput {
 }
 
 fn open_ptm() -> Result<libc::c_int> {
-    let pty_master = unsafe_try!(ffi::posix_openpt(libc::O_RDWR));
+    let pty_master = unsafe_try!(libc::posix_openpt(libc::O_RDWR));
 
-    unsafe_try!(ffi::grantpt(pty_master));
-    unsafe_try!(ffi::unlockpt(pty_master));
+    unsafe_try!(libc::grantpt(pty_master));
+    unsafe_try!(libc::unlockpt(pty_master));
 
     Ok(pty_master)
 }
