@@ -29,8 +29,8 @@
 
 use libc;
 use nix::errno;
+use nix::errno::Errno;
 use std::ffi::OsStr;
-use std::fmt;
 use std::io::{self, Read, Write};
 use std::os::unix::io::{AsRawFd, RawFd};
 use std::result;
@@ -47,35 +47,10 @@ macro_rules! unsafe_try {
     }};
 }
 
-#[derive(Debug)]
-pub enum Error {
-    Sys(i32),
-}
+pub type Result<T> = result::Result<T, Errno>;
 
-pub type Result<T> = result::Result<T, Error>;
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            Error::Sys(n) => write!(f, "{}", errno::from_i32(n).desc()),
-        }
-    }
-}
-
-impl From<i32> for Error {
-    fn from(n: i32) -> Error {
-        Error::Sys(n)
-    }
-}
-
-impl From<::nix::Error> for Error {
-    fn from(e: ::nix::Error) -> Error {
-        Error::Sys(e.errno() as i32)
-    }
-}
-
-fn last_error() -> Error {
-    Error::from(errno::errno())
+fn last_error() -> Errno {
+    errno::from_i32(errno::errno())
 }
 
 /// A type representing a pty.

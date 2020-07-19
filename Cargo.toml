@@ -11,7 +11,7 @@ license = "MIT"
 keywords = ["terminal", "tui", "multiplexing"]
 
 [dependencies]
-nix = "0.7"
+nix = "0.17"
 libc = "0.2"
 vte = "0.3"
 log = "0.4"
