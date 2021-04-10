@@ -234,13 +234,18 @@ impl Scrollable for Terminal {
     }
 }
 
-impl Widget for Terminal {
+struct TerminalWidget<'a> {
+    term: &'a Terminal,
+}
+
+impl<'a> Widget for TerminalWidget<'a> {
     fn space_demand(&self) -> Demand2D {
-        self.terminal_window.borrow().space_demand()
+        self.term.terminal_window.borrow().space_demand()
     }
     fn draw(&self, window: Window, hints: RenderingHints) {
-        self.ensure_size(window.get_width(), window.get_height());
-        self.terminal_window.borrow_mut().draw(window, hints);
+        self.term
+            .ensure_size(window.get_width(), window.get_height());
+        self.term.terminal_window.borrow_mut().draw(window, hints);
     }
 }
 
@@ -260,6 +265,9 @@ impl<P: ?Sized> Container<P> for Terminal {
             )
             .chain(PassthroughBehavior::new(self))
             .finish()
+    }
+    fn as_widget<'a>(&'a self) -> Box<dyn Widget + 'a> {
+        Box::new(TerminalWidget { term: self })
     }
 }
 
@@ -287,7 +295,7 @@ mod test {
             let mut tw = Terminal::new(FakeSlaveInputSink).unwrap();
             tw.terminal_window.get_mut().set_show_cursor(false);
             action(&mut tw);
-            tw.draw(window, RenderingHints::default());
+            tw.as_widget().draw(window, RenderingHints::default());
         }
         term.assert_looks_like(after);
     }
