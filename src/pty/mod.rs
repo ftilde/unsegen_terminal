@@ -79,10 +79,9 @@ impl PTY {
         let pts_name = unsafe { libc::ptsname(self.fd) };
 
         // This should not happen, as fd is always valid from open to drop.
-        assert!(
-            (pts_name as *const i32) != ::std::ptr::null(),
-            format!("ptsname failed. ({})", last_error())
-        );
+        if (pts_name as *const i32) == ::std::ptr::null() {
+            panic!("ptsname failed. ({})", last_error());
+        }
 
         let pts_name_cstr = unsafe { ::std::ffi::CStr::from_ptr(pts_name) };
         let pts_name_slice = pts_name_cstr.to_bytes();
@@ -100,10 +99,8 @@ impl PTY {
 
 impl Drop for PTY {
     fn drop(&mut self) {
-        assert!(
-            unsafe { libc::close(self.as_raw_fd()) } == 0,
-            format!("Closing PTY failed ({}).", last_error())
-        );
+        // There is no way to handle closing failure anyway.
+        let _ = unsafe { libc::close(self.as_raw_fd()) };
     }
 }
 
