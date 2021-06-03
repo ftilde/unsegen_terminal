@@ -7,6 +7,7 @@
 //!
 //! use unsegen::base;
 //! use unsegen::widget::{RenderingHints, Widget};
+//! use unsegen::container::Container;
 //!
 //! use unsegen_terminal::{SlaveInputSink, Terminal};
 //!
@@ -37,7 +38,12 @@
 //!         term_widget.add_byte_input(&bytes);
 //!         {
 //!             let win = term.create_root_window();
-//!             term_widget.draw(win, RenderingHints::default());
+//!
+//!             // Only required because Parameter C cannot be infered. Probably not required in a
+//!             // real application
+//!             let term_widget: &dyn Container<()> = &term_widget;
+//!
+//!             term_widget.as_widget().draw(win, RenderingHints::default());
 //!         }
 //!         term.present();
 //!     }
@@ -295,6 +301,7 @@ mod test {
             let mut tw = Terminal::new(FakeSlaveInputSink).unwrap();
             tw.terminal_window.get_mut().set_show_cursor(false);
             action(&mut tw);
+            let tw: &dyn Container<()> = &tw;
             tw.as_widget().draw(window, RenderingHints::default());
         }
         term.assert_looks_like(after);

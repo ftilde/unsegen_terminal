@@ -1,7 +1,7 @@
 [package]
 name = "unsegen_terminal"
-version = "0.2.2"
-authors = ["ftilde <ftilde@protonmail.com>"]
+version = "0.3.0"
+authors = ["ftilde <ftilde@tamepointer.de>"]
 
 description = "A pluggable `unsegen` ANSI terminal"
 documentation = "https://docs.rs/unsegen_terminal"
@@ -15,4 +15,4 @@ nix = "0.17"
 libc = "0.2"
 vte = "0.3"
 log = "0.4"
-unsegen = "0.2.1"
+unsegen = "0.3.0"
