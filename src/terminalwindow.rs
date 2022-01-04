@@ -641,25 +641,31 @@ impl Handler for DualWindow {
     fn clear_screen(&mut self, mode: ansi::ClearMode) {
         let clear_range = match mode {
             ansi::ClearMode::Below => {
-                let mut range_start = 0;
-                self.with_cursor(|cursor| {
-                    range_start = max(0, cursor.get_row().raw_value() + 1) as usize
-                });
-
                 self.clear_line(ansi::LineClearMode::Right);
-                range_start..self.buffer.lines.len()
+
+                let range_end = self.buffer.lines.len();
+                let mut cursor_pos = 0;
+                self.with_cursor(|cursor| cursor_pos = cursor.get_row().raw_value());
+                let range_start = (cursor_pos + 1).clamp(0, range_end as i32) as usize;
+
+                range_start..range_end
             }
             ansi::ClearMode::Above => {
-                let mut range_end = ::std::usize::MAX;
-                self.with_cursor(|cursor| {
-                    range_end = max(0, cursor.get_row().raw_value()) as usize
-                });
                 self.clear_line(ansi::LineClearMode::Left);
-                self.buffer
+
+                let range_start = self
+                    .buffer
                     .lines
                     .len()
                     .checked_sub(self.window_height.into())
-                    .unwrap_or(0)..range_end
+                    .unwrap_or(0);
+
+                let mut cursor_pos = 0;
+                self.with_cursor(|cursor| cursor_pos = cursor.get_row().raw_value());
+                let range_end =
+                    cursor_pos.clamp(range_start as i32, self.buffer.lines.len() as i32) as usize;
+
+                range_start..range_end
             }
             ansi::ClearMode::All => {
                 self.buffer
