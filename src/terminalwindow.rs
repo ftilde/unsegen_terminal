@@ -219,12 +219,13 @@ impl TerminalWindow {
         self.window_height
     }
 
-    fn with_cursor<F: FnOnce(&mut Cursor<LineBuffer>)>(&mut self, f: F) {
+    fn with_cursor<R, F: FnOnce(&mut Cursor<LineBuffer>) -> R>(&mut self, f: F) -> R {
         let mut state = CursorState::default();
         ::std::mem::swap(&mut state, &mut self.cursor_state);
         let mut cursor = Cursor::from_state(&mut self.buffer, state);
-        f(&mut cursor);
+        let res = f(&mut cursor);
         self.cursor_state = cursor.into_state();
+        res
     }
 
     fn line_to_buffer_pos_y(&self, line: index::Line) -> RowIndex {
@@ -584,9 +585,21 @@ impl Handler for DualWindow {
     }
 
     /// Delete `count` lines
-    fn delete_lines(&mut self, _: index::Line) {
-        //TODO
-        warn!("Unimplemented: delete_lines");
+    fn delete_lines(&mut self, n: index::Line) {
+        let n = *n as i32;
+        let start_line = (self.with_cursor(|c| c.get_row()) + 1).positive_or_zero();
+        let scroll_region_end = self
+            .scrolling_region_end
+            .map(|l| self.line_to_buffer_pos_y(l))
+            .unwrap_or(RowIndex::new(self.buffer.lines.len() as _));
+
+        let end = scroll_region_end - n;
+        for target in start_line.raw_value()..end.raw_value() {
+            let source = target + n;
+            let mut tmp = Line::empty();
+            std::mem::swap(&mut self.buffer.lines[source as usize], &mut tmp);
+            std::mem::swap(&mut self.buffer.lines[target as usize], &mut tmp);
+        }
     }
 
     /// Erase `count` chars in current line following cursor
