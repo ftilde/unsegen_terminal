@@ -606,9 +606,13 @@ impl Handler for DualWindow {
     ///
     /// Erase means resetting to the default state (default colors, no content,
     /// no mode flags)
-    fn erase_chars(&mut self, _: index::Column) {
-        //TODO
-        warn!("Unimplemented: erase_chars");
+    fn erase_chars(&mut self, n: index::Column) {
+        self.with_cursor(|cursor| {
+            let mut c = cursor.save().row().col();
+            for _ in 0..*n {
+                c.write(" ");
+            }
+        });
     }
 
     /// Delete `count` chars
