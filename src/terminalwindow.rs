@@ -166,6 +166,8 @@ pub struct TerminalWindow {
     cursor_state: CursorState,
     scrollback_position: Option<RowIndex>,
     scroll_step: Height,
+    scrolling_region_begin: index::Line,
+    scrolling_region_end: Option<index::Line>,
     cursor_style: CursorStyle,
 
     // Terminal state
@@ -181,6 +183,8 @@ impl TerminalWindow {
             cursor_state: CursorState::default(),
             scrollback_position: None,
             scroll_step: Height::new(1).unwrap(),
+            scrolling_region_begin: index::Line(1),
+            scrolling_region_end: None,
             cursor_style: CursorStyle::Block,
 
             show_cursor: true,
@@ -796,9 +800,10 @@ impl Handler for DualWindow {
     }
 
     /// DECSTBM - Set the terminal scrolling region
-    fn set_scrolling_region(&mut self, _: ::std::ops::Range<index::Line>) {
-        //TODO
-        warn!("Unimplemented: set_scrolling_region");
+    fn set_scrolling_region(&mut self, range: ::std::ops::Range<index::Line>) {
+        self.scrolling_region_begin = range.start;
+        self.scrolling_region_end = Some(range.end);
+        self.goto(index::Line(1), index::Column(1));
     }
 
     /// DECKPAM - Set keypad to applications mode (ESCape instead of digits)
