@@ -166,6 +166,7 @@ pub struct TerminalWindow {
     cursor_state: CursorState,
     scrollback_position: Option<RowIndex>,
     scroll_step: Height,
+    cursor_style: CursorStyle,
 
     // Terminal state
     show_cursor: bool,
@@ -180,6 +181,7 @@ impl TerminalWindow {
             cursor_state: CursorState::default(),
             scrollback_position: None,
             scroll_step: Height::new(1).unwrap(),
+            cursor_style: CursorStyle::Block,
 
             show_cursor: true,
         }
@@ -244,13 +246,19 @@ impl TerminalWindow {
     }
 
     pub fn draw(&mut self, mut window: Window, _: RenderingHints) {
+        let cursor_style_mod = match self.cursor_style {
+            CursorStyle::Beam => {
+                // TODO: not sure how to emulate a beam...
+                StyleModifier::new().underline(BoolModifyMode::Toggle)
+            }
+            CursorStyle::Block => StyleModifier::new().invert(BoolModifyMode::Toggle),
+            CursorStyle::Underline => StyleModifier::new().underline(BoolModifyMode::Toggle),
+        };
         //temporarily change buffer to show cursor:
         if self.show_cursor {
             self.with_cursor(|cursor| {
                 if let Some(cell) = cursor.get_current_cell_mut() {
-                    StyleModifier::new()
-                        .invert(BoolModifyMode::Toggle)
-                        .modify(&mut cell.style);
+                    cursor_style_mod.modify(&mut cell.style);
                 }
             });
         }
@@ -292,9 +300,7 @@ impl TerminalWindow {
         if self.show_cursor {
             self.with_cursor(|cursor| {
                 if let Some(cell) = cursor.get_current_cell_mut() {
-                    StyleModifier::new()
-                        .invert(BoolModifyMode::Toggle)
-                        .modify(&mut cell.style);
+                    cursor_style_mod.modify(&mut cell.style);
                 }
             });
         }
@@ -401,9 +407,8 @@ impl Handler for DualWindow {
     }
 
     /// Set the cursor style
-    fn set_cursor_style(&mut self, _: CursorStyle) {
-        //TODO
-        warn!("Unimplemented: set_cursor_style");
+    fn set_cursor_style(&mut self, style: CursorStyle) {
+        self.cursor_style = style;
     }
 
     /// A character to be displayed
