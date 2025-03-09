@@ -10,7 +10,7 @@
 `unsegen_terminal` is [available on crates.io](https://crates.io/crates/unsegen_terminal). You can install it by adding this line to your `Cargo.toml`:
 
 ```toml
-unsegen_terminal = "0.3.1"
+unsegen_terminal = "0.3.2"
 ```
 
 ## Examples
