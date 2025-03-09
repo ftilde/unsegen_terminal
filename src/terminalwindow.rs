@@ -497,6 +497,9 @@ impl Handler for DualWindow {
             for _ in 0..cols.0 {
                 cursor.move_left();
             }
+            if cursor.get_col() < 0 {
+                cursor.move_to_x(0.into());
+            }
         });
     }
 
@@ -525,6 +528,9 @@ impl Handler for DualWindow {
     fn backspace(&mut self) {
         self.with_cursor(|cursor| {
             cursor.move_left();
+            if cursor.get_col() < 0 {
+                cursor.move_to_x(0.into());
+            }
         });
     }
 
